@@ -1,149 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fraud Detector</title>
+    <link rel="icon" href="{{ url_for('static', filename='fraud_detector.ico', v='2') }}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}">
     <style>
-        body {
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-        .navbar {
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-        .card {
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        /* Hero Section Styles */
+        .hero-section {
+            position: relative;
+            overflow: hidden;
             border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        .risk-check {
-            padding: 10px 12px;
-            border: 1px solid #dee2e6;
+
+        .hero-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 3rem 2rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #0d6efd 0%, #20c997 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* Model Visualization Styles */
+        .model-visualization {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-image-container {
+            position: relative;
+            height: 200px;
             border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        .risk-check:hover {
-            background: #f8f9fa;
+
+        .model-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
         }
-        .risk-check.active {
-            background: #fff3cd;
-            border-color: #ffc107;
+
+        .model-image:hover {
+            transform: scale(1.05);
         }
-        .risk-check input { display: none; }
-        .btn-primary {
-            padding: 12px 24px;
-            font-weight: 500;
-        }
-        .result-high { background: linear-gradient(135deg, #dc3545, #c82333); }
-        .result-medium { background: linear-gradient(135deg, #fd7e14, #e8590c); }
-        .result-low { background: linear-gradient(135deg, #28a745, #1e7e34); }
-        .score-display {
-            font-size: 4rem;
-            font-weight: 700;
-        }
-        .tech-badge {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        .time-help-link {
-            cursor: pointer;
-            text-decoration: underline;
-            color: #0d6efd;
-        }
-        .time-help-link:hover {
-            color: #0a58ca;
-        }
-        .converter-result {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0d6efd;
-        }
-        .ampm-select {
-            max-width: 100px;
-        }
-        .format-switch {
-            cursor: pointer;
-            color: #0d6efd;
-            font-size: 0.9rem;
-            text-decoration: underline;
-        }
-        
-        /* Time converter modal styles */
-        @media (min-width: 768px) {
-            .time-converter-modal .modal-dialog {
-                max-width: 700px;
-            }
-            .time-converter-modal .modal-body {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-            .time-converter-modal .converter-inputs {
-                flex: 1;
-                min-width: 300px;
-            }
-            .time-converter-modal .converter-results {
-                flex: 1;
-                min-width: 300px;
-                border-left: 1px solid #dee2e6;
-                padding-left: 20px;
-            }
-        }
-        
-        @media (max-width: 767.98px) {
-            .time-converter-modal .modal-body {
-                display: block;
-            }
-            .time-converter-modal .converter-results {
-                margin-top: 20px;
-                padding-top: 20px;
-                border-top: 1px solid #dee2e6;
-            }
-        }
-        
-        .quick-reference-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .quick-reference-item {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 10px;
+
+        .image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem;
+            font-size: 0.85rem;
             text-align: center;
-            border: 1px solid #e9ecef;
         }
-        
-        .time-input-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+
+        /* Feature Visualization Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #0d6efd;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-content {
+                padding: 2rem 1rem;
+            }
+
+            .model-visualization {
+                padding: 1.5rem;
+            }
+
+            .model-image-container {
+                height: 180px;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .model-image-container {
+                height: 150px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation for Hero Section */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content {
+            animation: fadeInUp 0.8s ease-out;
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">
                 <i class="fas fa-shield-halved text-primary"></i> Fraud Detector
             </a>
-            <span class="text-muted small">
-                <i class="fas fa-microchip"></i> Logistic Regression + PCA
-            </span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small d-none d-md-inline">
+                    <i class="fas fa-microchip"></i> Logistic Regression + PCA
+                </span>
+                <div id="authSection">
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#authModal"
+                        id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> <span class="d-none d-sm-inline">Login</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
     <div class="container pb-5">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <img src="{{ url_for('static', filename='image_gray_hero.png') }}" alt="Fraud Detection Pattern"
+                class="hero-background">
+            <div class="hero-content text-center">
+                <h1 class="hero-title">
+                    <i class="fas fa-shield-alt"></i> Advanced Fraud Detection System
+                </h1>
+                <p class="hero-subtitle">
+                    Using Logistic Regression with PCA to identify suspicious transactions with 99.9% accuracy.
+                    Protecting financial systems from fraudulent activities in real-time.
+                </p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <span class="badge bg-primary">Real-time Analysis</span>
+                    <span class="badge bg-success">Machine Learning</span>
+                    <span class="badge bg-warning text-dark">PCA Optimization</span>
+                    <span class="badge bg-info">284K+ Transactions</span>
+                </div>
+            </div>
+        </div>
+
         {% if error %}
         <div class="alert alert-danger">
             <i class="fas fa-exclamation-circle"></i> {{ error }}
@@ -153,7 +228,8 @@
         {% if result %}
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card overflow-hidden">
+                <div class="card overflow-hidden" id="resultCard" data-score="{{ score }}" data-risk="{{ result.risk }}"
+                    data-amount="{{ amount }}" data-factors="{{ factors_count }}">
                     <div class="result-{{ result.risk|lower }} text-white text-center py-5">
                         <i class="fas {{ result.icon }} fa-3x mb-3"></i>
                         {% if user_name %}<h5>Hello, {{ user_name }}!</h5>{% endif %}
@@ -162,13 +238,16 @@
                         <p class="mb-0">Fraud Probability</p>
                     </div>
                     <div class="card-body p-4">
-                        <div class="alert alert-{{ 'danger' if result.risk == 'High' else ('warning' if result.risk == 'Medium' else 'success') }}">
-                            <strong><i class="fas fa-clipboard-check"></i> Recommendation:</strong> {{ result.recommendation }}
+                        <div
+                            class="alert alert-{{ 'danger' if result.risk == 'High' else ('warning' if result.risk == 'Medium' else 'success') }}">
+                            <strong><i class="fas fa-clipboard-check"></i> Recommendation:</strong> {{
+                            result.recommendation }}
                         </div>
 
                         <h6 class="fw-bold mb-2"><i class="fas fa-file-alt text-primary"></i> Detailed Analysis</h6>
                         <div class="bg-light rounded p-3">
-                            <div class="text-dark small" style="line-height: 1.7;">{{ analysis_report | default('Analysis not available.', true) | safe }}</div>
+                            <div class="text-dark small" style="line-height: 1.7;">{{ analysis_report |
+                                default('Analysis not available.', true) | safe }}</div>
                         </div>
 
                         <div class="row mt-3">
@@ -209,12 +288,75 @@
         {% else %}
 
         <div class="row">
+            <!-- Model Visualization Card -->
+            <div class="model-visualization">
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-project-diagram text-primary"></i> Model Architecture Visualization
+                </h4>
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="model-image-container">
+                            <img src="{{ url_for('static', filename='image_colored_hero.png') }}"
+                                alt="Fraud Detection Model Flow" class="model-image">
+                            <!-- <div class="image-caption">Model Training & Validation Process</div> -->
+                        </div>
+                        <p class="text-muted small text-center">
+                            The colored visualization shows how our Logistic Regression model processes
+                            PCA-transformed features to detect fraudulent patterns.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="model-image-container">
+                            <img src="{{ url_for('static', filename='image_gray_hero.png') }}"
+                                alt="Fraud Pattern Analysis" class="model-image">
+                            <!-- <div class="image-caption">Anomaly Detection Patterns</div> -->
+                        </div>
+                        <p class="text-muted small text-center">
+                            Gray-scale analysis reveals hidden patterns and correlations in transaction data
+                            that indicate potential fraud.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="feature-label fw-bold">Data Collection</div>
+                        <div class="feature-desc small text-muted">284K+ transactions</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <div class="feature-label fw-bold">PCA Processing</div>
+                        <div class="feature-desc small text-muted">30→28 features</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="feature-label fw-bold">Model Training</div>
+                        <div class="feature-desc small text-muted">Logistic Regression</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="feature-label fw-bold">Real-time Analysis</div>
+                        <div class="feature-desc small text-muted">&lt;10ms response</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-lg-4 mb-4">
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-brain text-primary"></i> About the Model</h5>
                         <hr>
-                        <p class="small text-muted">This fraud detection system uses <strong>Logistic Regression</strong> trained on the Credit Card Fraud Detection dataset (ULB).</p>
+                        <p class="small text-muted">This fraud detection system uses <strong>Logistic
+                                Regression</strong> trained on the Credit Card Fraud Detection dataset (ULB).</p>
 
                         <h6 class="mt-3"><i class="fas fa-database"></i> Dataset</h6>
                         <ul class="small text-muted mb-3">
@@ -232,7 +374,8 @@
                         </div>
 
                         <h6><i class="fas fa-lock"></i> PCA Transform</h6>
-                        <p class="small text-muted mb-0">V1-V28 are PCA-transformed features. Original transaction data is anonymized for privacy.</p>
+                        <p class="small text-muted mb-0">V1-V28 are PCA-transformed features. Original transaction data
+                            is anonymized for privacy.</p>
                     </div>
                 </div>
             </div>
@@ -242,10 +385,13 @@
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-chart-pie text-success"></i> How Scoring Works</h5>
                         <hr>
-                        <p class="small text-muted">The model outputs a <strong>probability score</strong> (0-100%) using the sigmoid function.</p>
+                        <p class="small text-muted">The model outputs a <strong>probability score</strong> (0-100%)
+                            using the sigmoid function.</p>
 
                         <h6 class="mt-3"><i class="fas fa-balance-scale"></i> Class Balancing</h6>
-                        <p class="small text-muted">Because fraud is rare, the model uses <code>class_weight='balanced'</code> to give 500x more weight to fraud cases.</p>
+                        <p class="small text-muted">Because fraud is rare, the model uses
+                            <code>class_weight='balanced'</code> to give 500x more weight to fraud cases.
+                        </p>
 
                         <h6 class="mt-3"><i class="fas fa-traffic-light"></i> Risk Levels</h6>
                         <div class="mb-2">
@@ -269,15 +415,18 @@
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-building text-info"></i> Real-World Usage</h5>
                         <hr>
-                        <p class="small text-muted">In production (banks like HDFC, ICICI), this model would work as follows:</p>
+                        <p class="small text-muted">In production (banks like HDFC, ICICI), this model would work as
+                            follows:</p>
 
                         <div class="d-flex align-items-start mb-2">
                             <span class="badge bg-light text-dark me-2">1</span>
-                            <span class="small text-muted"><strong>Detection:</strong> User swipes card for ₹5,000</span>
+                            <span class="small text-muted"><strong>Detection:</strong> User swipes card for
+                                ₹5,000</span>
                         </div>
                         <div class="d-flex align-items-start mb-2">
                             <span class="badge bg-light text-dark me-2">2</span>
-                            <span class="small text-muted"><strong>Enrichment:</strong> Backend checks IP, device, location → generates V1-V28</span>
+                            <span class="small text-muted"><strong>Enrichment:</strong> Backend checks IP, device,
+                                location → generates V1-V28</span>
                         </div>
                         <div class="d-flex align-items-start mb-2">
                             <span class="badge bg-light text-dark me-2">3</span>
@@ -300,26 +449,32 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Name (Optional)</label>
-                            <input type="text" class="form-control" name="user_name" placeholder="Your name">
+                            <input type="text" class="form-control" name="user_name" id="userName"
+                                placeholder="Your name">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Amount (₹)</label>
-                            <input type="number" class="form-control" name="amount" step="0.01" min="0" placeholder="e.g. 2500" required>
+                            <input type="number" class="form-control" name="amount" id="amountInput" step="0.01" min="0"
+                                placeholder="e.g. 2500" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">
                                 Time (seconds)
-                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" title="Time elapsed since midnight (00:00) when the transaction occurred"></i>
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip"
+                                    title="Time elapsed since midnight (00:00) when the transaction occurred"></i>
                             </label>
                             <div class="input-group">
-                                <input type="number" class="form-control" name="time" id="timeInput" min="0" placeholder="e.g. 3600" required>
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#timeConverterModal">
+                                <input type="number" class="form-control" name="time" id="timeInput" min="0"
+                                    placeholder="e.g. 3600" required>
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#timeConverterModal">
                                     <i class="fas fa-calculator"></i>
                                 </button>
                             </div>
                             <div class="form-text">
                                 <i class="fas fa-clock"></i> Seconds since midnight (12:00 AM).
-                                <span class="time-help-link" data-bs-toggle="modal" data-bs-target="#timeConverterModal">Need help converting?</span>
+                                <span class="time-help-link" data-bs-toggle="modal"
+                                    data-bs-target="#timeConverterModal">Need help converting?</span>
                             </div>
                         </div>
                     </div>
@@ -328,8 +483,10 @@
                         <small>
                             <i class="fas fa-info-circle"></i>
                             <strong>Understanding the "Time" Feature</strong><br>
-                            • The "Time" feature in the dataset represents <strong>seconds elapsed since midnight (00:00:00)</strong> when the transaction occurred.<br>
-                            • For example: <strong>3:30 PM = 55800 seconds</strong> (15.5 hours × 3600 seconds/hour).<br>
+                            • The "Time" feature in the dataset represents <strong>seconds elapsed since midnight
+                                (00:00:00)</strong> when the transaction occurred.<br>
+                            • For example: <strong>3:30 PM = 55800 seconds</strong> (15.5 hours × 3600
+                            seconds/hour).<br>
                             • This is important because fraud patterns often show time-based anomalies:<br>
                             &nbsp;&nbsp;✓ Normal hours (9 AM - 6 PM): Lower fraud probability<br>
                             &nbsp;&nbsp;✓ Late night (12 AM - 5 AM): Higher fraud probability (4x more likely)<br>
@@ -338,8 +495,10 @@
                         </small>
                     </div>
 
-                    <h6 class="mt-3 mb-3"><i class="fas fa-exclamation-triangle text-warning"></i> Risk Factors (select all that apply)</h6>
-                    <p class="text-muted small mb-3">These simulate the V1-V28 PCA components that would be generated by a real fraud detection system.</p>
+                    <h6 class="mt-3 mb-3"><i class="fas fa-exclamation-triangle text-warning"></i> Risk Factors (select
+                        all that apply)</h6>
+                    <p class="text-muted small mb-3">These simulate the V1-V28 PCA components that would be generated by
+                        a real fraud detection system.</p>
 
                     <div class="row">
                         <div class="col-md-6 col-lg-3">
@@ -347,7 +506,8 @@
                                 <input type="checkbox" name="location_anomaly" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Unusual Location</strong><br><small class="text-muted">V1-V2</small></span>
+                                <span><strong>Unusual Location</strong><br><small
+                                        class="text-muted">V1-V2</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -355,7 +515,8 @@
                                 <input type="checkbox" name="currency_mismatch" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Currency Mismatch</strong><br><small class="text-muted">V3-V4</small></span>
+                                <span><strong>Currency Mismatch</strong><br><small
+                                        class="text-muted">V3-V4</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -379,7 +540,8 @@
                                 <input type="checkbox" name="transaction_velocity" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Rapid Transactions</strong><br><small class="text-muted">V9-V10</small></span>
+                                <span><strong>Rapid Transactions</strong><br><small
+                                        class="text-muted">V9-V10</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -387,7 +549,8 @@
                                 <input type="checkbox" name="amount_deviation" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Unusual Amount</strong><br><small class="text-muted">V11-V12</small></span>
+                                <span><strong>Unusual Amount</strong><br><small
+                                        class="text-muted">V11-V12</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -403,7 +566,8 @@
                                 <input type="checkbox" name="merchant_risk" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>High-Risk Merchant</strong><br><small class="text-muted">V15-V16</small></span>
+                                <span><strong>High-Risk Merchant</strong><br><small
+                                        class="text-muted">V15-V16</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -411,7 +575,8 @@
                                 <input type="checkbox" name="card_presence" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Card Not Present</strong><br><small class="text-muted">V17-V18</small></span>
+                                <span><strong>Card Not Present</strong><br><small
+                                        class="text-muted">V17-V18</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -435,7 +600,8 @@
                                 <input type="checkbox" name="shipping_billing_match" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Address Mismatch</strong><br><small class="text-muted">V23-V24</small></span>
+                                <span><strong>Address Mismatch</strong><br><small
+                                        class="text-muted">V23-V24</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -443,7 +609,8 @@
                                 <input type="checkbox" name="email_domain_risk" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Suspicious Email</strong><br><small class="text-muted">V25-V26</small></span>
+                                <span><strong>Suspicious Email</strong><br><small
+                                        class="text-muted">V25-V26</small></span>
                             </label>
                         </div>
                         <div class="col-md-6 col-lg-3">
@@ -451,7 +618,8 @@
                                 <input type="checkbox" name="behavioral_biometrics" value="yes">
                                 <i class="fas fa-check-square text-warning me-2 check-icon" style="display:none"></i>
                                 <i class="far fa-square text-muted me-2 uncheck-icon"></i>
-                                <span><strong>Unusual Behavior</strong><br><small class="text-muted">V27-V28</small></span>
+                                <span><strong>Unusual Behavior</strong><br><small
+                                        class="text-muted">V27-V28</small></span>
                             </label>
                         </div>
                     </div>
@@ -467,9 +635,110 @@
         </div>
 
         <div class="text-center mt-4 text-muted small">
-            <i class="fas fa-graduation-cap"></i> Academic Project | Logistic Regression with PCA | Credit Card Fraud Detection
+            <i class="fas fa-graduation-cap"></i> Academic Project | Logistic Regression with PCA | Credit Card Fraud
+            Detection
         </div>
         {% endif %}
+    </div>
+
+    <!-- Modals remain unchanged -->
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="authModalTitle"><i class="fas fa-user-circle text-primary"></i> Login
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="authError" class="alert alert-danger d-none"></div>
+                    <div id="authSuccess" class="alert alert-success d-none"></div>
+
+                    <div id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" placeholder="your@email.com"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="••••••••"
+                                required>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" id="loginSubmit">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                        <div class="auth-divider"><span>or</span></div>
+                        <p class="text-center text-muted small mb-0">
+                            Don't have an account? <a href="#" id="showRegister">Register here</a>
+                        </p>
+                    </div>
+
+                    <div id="registerForm" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="registerName" placeholder="Your name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" placeholder="your@email.com"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword"
+                                placeholder="Min 6 characters" required>
+                        </div>
+                        <button type="button" class="btn btn-success w-100" id="registerSubmit">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
+                        <div class="auth-divider"><span>or</span></div>
+                        <p class="text-center text-muted small mb-0">
+                            Already have an account? <a href="#" id="showLogin">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="historyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-history text-primary"></i> Analysis History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="historyLoading" class="text-center py-4 text-muted">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                        <p>Loading history...</p>
+                    </div>
+                    <div id="historyEmpty" class="text-center py-4 text-muted" style="display: none;">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No analysis history yet.<br>Your fraud checks will appear here.</p>
+                    </div>
+                    <div id="historyList"></div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="selectAllHistory">
+                            <i class="fas fa-check-double"></i> Select All
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="deleteSelected"
+                            style="display: none;">
+                            <i class="fas fa-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="clearHistory">
+                            <i class="fas fa-trash-alt"></i> Clear All
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade time-converter-modal" id="timeConverterModal" tabindex="-1">
@@ -482,25 +751,28 @@
                 <div class="modal-body">
                     <div class="converter-inputs">
                         <p class="text-muted small mb-3">
-                            Enter the time of day when the transaction occurred. The converter will calculate seconds since midnight (12:00 AM).
+                            Enter the time of day when the transaction occurred. The converter will calculate seconds
+                            since midnight (12:00 AM).
                             <a href="#" class="format-switch ms-1" id="toggleFormat">Switch to 24-hour format</a>
                         </p>
 
                         <div class="time-input-section">
-                            <!-- 12-Hour Format Inputs (Default) -->
                             <div class="time-input-12hour">
                                 <div class="row g-2 mb-2">
                                     <div class="col-4">
                                         <label class="form-label small">Hours</label>
-                                        <input type="number" class="form-control" id="convHours12" min="1" max="12" value="12" placeholder="1-12">
+                                        <input type="number" class="form-control" id="convHours12" min="1" max="12"
+                                            value="12" placeholder="1-12">
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label small">Minutes</label>
-                                        <input type="number" class="form-control" id="convMinutes12" min="0" max="59" value="0" placeholder="0-59">
+                                        <input type="number" class="form-control" id="convMinutes12" min="0" max="59"
+                                            value="0" placeholder="0-59">
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label small">Seconds</label>
-                                        <input type="number" class="form-control" id="convSeconds12" min="0" max="59" value="0" placeholder="0-59">
+                                        <input type="number" class="form-control" id="convSeconds12" min="0" max="59"
+                                            value="0" placeholder="0-59">
                                     </div>
                                 </div>
                                 <div class="row g-2">
@@ -514,20 +786,22 @@
                                 </div>
                             </div>
 
-                            <!-- 24-Hour Format Inputs (Hidden by default) -->
                             <div class="time-input-24hour" style="display: none;">
                                 <div class="row g-2">
                                     <div class="col-4">
                                         <label class="form-label small">Hours</label>
-                                        <input type="number" class="form-control" id="convHours24" min="0" max="23" value="0" placeholder="0-23">
+                                        <input type="number" class="form-control" id="convHours24" min="0" max="23"
+                                            value="0" placeholder="0-23">
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label small">Minutes</label>
-                                        <input type="number" class="form-control" id="convMinutes24" min="0" max="59" value="0" placeholder="0-59">
+                                        <input type="number" class="form-control" id="convMinutes24" min="0" max="59"
+                                            value="0" placeholder="0-59">
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label small">Seconds</label>
-                                        <input type="number" class="form-control" id="convSeconds24" min="0" max="59" value="0" placeholder="0-59">
+                                        <input type="number" class="form-control" id="convSeconds24" min="0" max="59"
+                                            value="0" placeholder="0-59">
                                     </div>
                                 </div>
                             </div>
@@ -573,7 +847,8 @@
                             <div class="converter-result" id="convResult">0</div>
                             <div class="text-muted small">seconds since midnight</div>
                             <div class="small text-muted mt-2" id="timeExplanation">
-                                This means the transaction happened at <br><span id="humanTime" class="fw-bold">12:00:00 AM</span>
+                                This means the transaction happened at <br><span id="humanTime" class="fw-bold">12:00:00
+                                    AM</span>
                             </div>
                         </div>
 
@@ -581,7 +856,8 @@
                             <small>
                                 <i class="fas fa-lightbulb text-warning"></i>
                                 <strong>Why is time important?</strong><br>
-                                Fraudsters often operate during unusual hours (midnight to 5 AM) when legitimate cardholders are usually asleep.
+                                Fraudsters often operate during unusual hours (midnight to 5 AM) when legitimate
+                                cardholders are usually asleep.
                             </small>
                         </div>
 
@@ -597,173 +873,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (el) {
-            return new bootstrap.Tooltip(el);
-        });
-
-        document.querySelectorAll('.risk-check').forEach(function(item) {
-            item.addEventListener('click', function() {
-                var checkbox = this.querySelector('input[type="checkbox"]');
-                checkbox.checked = !checkbox.checked;
-                this.classList.toggle('active', checkbox.checked);
-                this.querySelector('.check-icon').style.display = checkbox.checked ? 'inline' : 'none';
-                this.querySelector('.uncheck-icon').style.display = checkbox.checked ? 'none' : 'inline';
-            });
-        });
-
-        var form = document.getElementById('fraudForm');
-        if (form) {
-            form.addEventListener('submit', function() {
-                var btn = document.getElementById('submitBtn');
-                var btnText = document.getElementById('btnText');
-                var btnIcon = document.getElementById('btnIcon');
-                btn.disabled = true;
-                btnIcon.className = 'fas fa-spinner fa-spin';
-                var steps = ['Loading Model', 'Building Vectors', 'Running Analysis', 'Calculating Risk'];
-                var i = 0;
-                setInterval(function() {
-                    if (i < steps.length) {
-                        btnText.textContent = steps[i] + '...';
-                        i++;
-                    }
-                }, 400);
-            });
-        }
-
-        // Time converter functionality
-        var using12HourFormat = true;
-        var toggleFormatBtn = document.getElementById('toggleFormat');
-
-        function toggleTimeFormat() {
-            using12HourFormat = !using12HourFormat;
-            var time12 = document.querySelector('.time-input-12hour');
-            var time24 = document.querySelector('.time-input-24hour');
-            
-            if (using12HourFormat) {
-                time12.style.display = 'block';
-                time24.style.display = 'none';
-                toggleFormatBtn.textContent = 'Switch to 24-hour format';
-                // Convert current 24-hour values to 12-hour
-                convert24To12();
-            } else {
-                time12.style.display = 'none';
-                time24.style.display = 'block';
-                toggleFormatBtn.textContent = 'Switch to 12-hour format';
-                // Convert current 12-hour values to 24-hour
-                convert12To24();
-            }
-        }
-
-        function convert12To24() {
-            var hours12 = parseInt(document.getElementById('convHours12').value) || 12;
-            var minutes = parseInt(document.getElementById('convMinutes12').value) || 0;
-            var seconds = parseInt(document.getElementById('convSeconds12').value) || 0;
-            var ampm = document.getElementById('convAmPm').value;
-            
-            var hours24 = hours12;
-            if (ampm === 'AM' && hours12 === 12) {
-                hours24 = 0;
-            } else if (ampm === 'PM' && hours12 !== 12) {
-                hours24 = hours12 + 12;
-            }
-            
-            document.getElementById('convHours24').value = hours24;
-            document.getElementById('convMinutes24').value = minutes;
-            document.getElementById('convSeconds24').value = seconds;
-        }
-
-        function convert24To12() {
-            var hours24 = parseInt(document.getElementById('convHours24').value) || 0;
-            var minutes = parseInt(document.getElementById('convMinutes24').value) || 0;
-            var seconds = parseInt(document.getElementById('convSeconds24').value) || 0;
-            
-            var hours12 = hours24;
-            var ampm = 'AM';
-            
-            if (hours24 === 0) {
-                hours12 = 12;
-                ampm = 'AM';
-            } else if (hours24 === 12) {
-                hours12 = 12;
-                ampm = 'PM';
-            } else if (hours24 > 12) {
-                hours12 = hours24 - 12;
-                ampm = 'PM';
-            } else {
-                ampm = 'AM';
-            }
-            
-            document.getElementById('convHours12').value = hours12;
-            document.getElementById('convMinutes12').value = minutes;
-            document.getElementById('convSeconds12').value = seconds;
-            document.getElementById('convAmPm').value = ampm;
-        }
-
-        function calculateSeconds() {
-            var hours, minutes, seconds;
-            var humanTime = "";
-            
-            if (using12HourFormat) {
-                convert12To24();
-                hours = parseInt(document.getElementById('convHours24').value) || 0;
-                minutes = parseInt(document.getElementById('convMinutes24').value) || 0;
-                seconds = parseInt(document.getElementById('convSeconds24').value) || 0;
-                
-                // Create human-readable time
-                var hours12 = parseInt(document.getElementById('convHours12').value) || 12;
-                var ampm = document.getElementById('convAmPm').value;
-                humanTime = hours12 + ":" + 
-                           minutes.toString().padStart(2, '0') + ":" + 
-                           seconds.toString().padStart(2, '0') + " " + ampm;
-            } else {
-                hours = parseInt(document.getElementById('convHours24').value) || 0;
-                minutes = parseInt(document.getElementById('convMinutes24').value) || 0;
-                seconds = parseInt(document.getElementById('convSeconds24').value) || 0;
-                
-                // Create human-readable time in 24-hour format
-                humanTime = hours.toString().padStart(2, '0') + ":" + 
-                           minutes.toString().padStart(2, '0') + ":" + 
-                           seconds.toString().padStart(2, '0');
-            }
-            
-            hours = Math.max(0, Math.min(23, hours));
-            minutes = Math.max(0, Math.min(59, minutes));
-            seconds = Math.max(0, Math.min(59, seconds));
-            
-            var total = (hours * 3600) + (minutes * 60) + seconds;
-            document.getElementById('convResult').textContent = total.toLocaleString();
-            document.getElementById('humanTime').textContent = humanTime;
-            return total;
-        }
-
-        // Event listeners
-        document.getElementById('toggleFormat').addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleTimeFormat();
-            calculateSeconds();
-        });
-
-        // Add event listeners to all time inputs
-        ['convHours12', 'convMinutes12', 'convSeconds12', 'convAmPm', 
-         'convHours24', 'convMinutes24', 'convSeconds24'].forEach(function(id) {
-            var element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('input', calculateSeconds);
-            }
-        });
-
-        document.getElementById('convertBtn').addEventListener('click', calculateSeconds);
-        document.getElementById('useTimeBtn').addEventListener('click', function() {
-            var total = calculateSeconds();
-            document.getElementById('timeInput').value = total;
-            var modal = bootstrap.Modal.getInstance(document.getElementById('timeConverterModal'));
-            modal.hide();
-        });
-
-        // Initialize
-        calculateSeconds();
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="{{ url_for('static', filename='script/script.js') }}"></script>
 </body>
+
 </html>
